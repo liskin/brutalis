@@ -1,3 +1,4 @@
+#include <string.h>
 #include "http.h"
 #include "net.h"
 #include "base64.h"
