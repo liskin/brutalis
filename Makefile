@@ -5,7 +5,6 @@ CFLAGS=$(CMNFLAGS) -std=c99
 CXXFLAGS=$(CMNFLAGS)
 LDLIBS=-lcrypto -lssl
 LDFLAGS=-g
-LINK.o=$(CXX) $(LDFLAGS) $(TARGET_ARCH)
 
 .PHONY: all clean dep
 
