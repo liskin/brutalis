@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 
         char buffer[4096];
         while (fgets(buffer, 4096, f)) {
-            if (strcasestr(buffer, "Potvrzení"))
+            if (strstr(buffer, "Potvrzení:") || strstr(buffer, "Varování:"))
                 ok = 1;
             //fputs(buffer, stdout);
         }
