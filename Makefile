@@ -7,14 +7,14 @@ LDLIBS=-lcrypto -lssl
 LDFLAGS=-g
 
 OBJECTS=net.o base64.o http.o time.o common.o
-BINS=brutalis
+BINS=udelejpresne
 
 
 .PHONY: all clean dep
 
 all: $(BINS)
 
-brutalis: brutalis.o $(OBJECTS)
+udelejpresne: udelejpresne.o $(OBJECTS)
 
 
 MAKEDEP=-gcc -MM $(wildcard *.c *.cc) > .depend
