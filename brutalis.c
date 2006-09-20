@@ -50,18 +50,18 @@ int main(int argc, char *argv[])
 
         http_fire(f);
 
-        int chyba = 0;
+        int ok = 0;
 
         char buffer[4096];
         while (fgets(buffer, 4096, f)) {
-            if (strcasestr(buffer, "CHYBA"))
-                chyba = 1;
+            if (strcasestr(buffer, "Potvrzení"))
+                ok = 1;
             //fputs(buffer, stdout);
         }
 
         fclose(f);
 
-        if (chyba)
+        if (!ok)
             printf("\033[1;31mCHYBA\033[m\n");
         else
             printf("\033[1;32mOK\033[m\n");
