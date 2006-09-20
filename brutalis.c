@@ -17,10 +17,6 @@
 
 int main(int argc, char *argv[])
 {
-    SSL_library_init();
-    SSL_load_error_strings();
-    srand(time(0) ^ getpid());
-
     char user[20];
     printf("Zadej UCO: ");
     scanf("%19s", user);

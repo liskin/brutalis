@@ -6,9 +6,16 @@ CXXFLAGS=$(CMNFLAGS)
 LDLIBS=-lcrypto -lssl
 LDFLAGS=-g
 
+OBJECTS=net.o base64.o http.o time.o common.o
+BINS=brutalis
+
+
 .PHONY: all clean dep
 
-all: brutalis
+all: $(BINS)
+
+brutalis: brutalis.o $(OBJECTS)
+
 
 MAKEDEP=-gcc -MM $(wildcard *.c *.cc) > .depend
 dep:
@@ -19,6 +26,4 @@ dep:
 -include .depend
 
 clean:
-	$(RM) $(wildcard *.o *.so *.a brutalis)
-
-brutalis: brutalis.o net.o base64.o http.o time.o
+	$(RM) $(wildcard *.o *.so *.a $(BINS))

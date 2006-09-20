@@ -16,6 +16,17 @@
 #include "net.h"
 
 /**
+ * \brief Inicializace.
+ */
+static void net_init() __attribute__((constructor));
+static void net_init()
+{
+    puts("net_init");
+    SSL_library_init();
+    SSL_load_error_strings();
+}
+
+/**
  * \brief Resolvuje IP, vraci ulong.
  * \return 0 pri chybe.
  */
