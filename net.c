@@ -1,3 +1,10 @@
+/*
+ * Brutalis, is.muni.cz automatzor.
+ * Copyright (c) 2006, Tomas Janousek <tomi@nomi.cz>
+ *
+ * Tohle je neverejny a ve vlastnim zajmu to nikomu nedavejte.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,6 +17,7 @@
 
 /**
  * \brief Resolvuje IP, vraci ulong.
+ * \return 0 pri chybe.
  */
 unsigned long resolv(const char *host)
 {
@@ -27,17 +35,18 @@ unsigned long resolv(const char *host)
 
 /**
  * \brief Pripojuje soket podle zadane adresy a portu, vraci pripojeny soket.
+ * \return -1 pri chybe.
  */
 int net_connect(const char *host, unsigned short port)
 {
     unsigned long host_ip = resolv(host);
     if (!host_ip)
-        abort();
+        goto chyba1;
 
     int sock = -1;
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         perror("socket");
-        abort();
+        goto chyba1;
     }
 
     struct sockaddr_in sa;
@@ -48,27 +57,31 @@ int net_connect(const char *host, unsigned short port)
 
     if (connect(sock, &sa, sizeof(sa)) == -1) {
         perror("connect");
-        abort();
+        goto chyba2;
     }
 
     return sock;
+
+chyba2:
+    if (close(sock) == -1) {
+        perror("close");
+        abort();
+    }
+chyba1:
+    return -1;
 }
 
 /**
  * \brief Cookie funkce pro uzavreni SSL spojeni i soketu.
+ * \return Vzdy uspech - 0.
  */
 int ssl_close(struct ssl_conn *conn)
 {
     int ret;
 
-    /* Tohle nejak nefunguje nebo co. */
-    /* while ((ret = SSL_shutdown(conn->ssl)) == 0);*/
-
     ret = SSL_shutdown(conn->ssl);
-    if (ret == -1) {
+    if (ret == -1)
         ERR_print_errors_fp(stderr);
-        abort();
-    }
 
     SSL_free(conn->ssl);
     SSL_CTX_free(conn->ctx);
@@ -87,9 +100,8 @@ int ssl_close(struct ssl_conn *conn)
 ssize_t ssl_read(struct ssl_conn *conn, char *buf, size_t sz)
 {
     int ret = SSL_read(conn->ssl, buf, sz);
-    if (ret <= 0) {
+    if (ret <= 0)
         ERR_print_errors_fp(stderr);
-    }
 
     return ret;
 }
@@ -100,15 +112,15 @@ ssize_t ssl_read(struct ssl_conn *conn, char *buf, size_t sz)
 ssize_t ssl_write(struct ssl_conn *conn, const char *buf, size_t sz)
 {
     int ret = SSL_write(conn->ssl, buf, sz);
-    if (ret <= 0) {
+    if (ret <= 0)
         ERR_print_errors_fp(stderr);
-    }
 
     return ret;
 }
 
 /**
  * \brief Otevre SSL spojeni na danou adresu a port, vraci C stream.
+ * \return 0 pri chybe.
  */
 FILE * ssl_connect(const char *host, unsigned short port)
 {
@@ -120,28 +132,28 @@ FILE * ssl_connect(const char *host, unsigned short port)
 
     conn->sock = net_connect(host, port);
     if (conn->sock == -1)
-        abort();
+        goto chyba1;
 
     conn->ctx = SSL_CTX_new(SSLv23_client_method());
     if (!conn->ctx) {
         ERR_print_errors_fp(stderr);
-        abort();
+        goto chyba2;
     }
     
     conn->ssl = SSL_new(conn->ctx);
     if (!conn->ssl) {
         ERR_print_errors_fp(stderr);
-        abort();
+        goto chyba3;
     }
 
     if (!SSL_set_fd(conn->ssl, conn->sock)) {
         ERR_print_errors_fp(stderr);
-        abort();
+        goto chyba4;
     }
 
     if (SSL_connect(conn->ssl) <= 0) {
         ERR_print_errors_fp(stderr);
-        abort();
+        goto chyba4;
     }
 
     cookie_io_functions_t cfuncs;
@@ -153,8 +165,21 @@ FILE * ssl_connect(const char *host, unsigned short port)
     FILE *f = fopencookie(conn, "rb+", cfuncs);
     if (!f) {
         perror("fopencookie");
-        abort();
+        goto chyba4;
     }
 
     return f;
+
+chyba4:
+    SSL_free(conn->ssl);
+chyba3:
+    SSL_CTX_free(conn->ctx);
+chyba2:
+    if (close(conn->sock) == -1) {
+        perror("close");
+        abort();
+    }
+chyba1:
+    free(conn);
+    return 0;
 }

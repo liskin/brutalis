@@ -1,3 +1,10 @@
+/*
+ * Brutalis, is.muni.cz automatzor.
+ * Copyright (c) 2006, Tomas Janousek <tomi@nomi.cz>
+ *
+ * Tohle je neverejny a ve vlastnim zajmu to nikomu nedavejte.
+ */
+
 #ifndef TIME_H
 #define TIME_H
 

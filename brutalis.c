@@ -1,3 +1,10 @@
+/*
+ * Brutalis, is.muni.cz automatzor.
+ * Copyright (c) 2006, Tomas Janousek <tomi@nomi.cz>
+ *
+ * Tohle je neverejny a ve vlastnim zajmu to nikomu nedavejte.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -42,7 +49,7 @@ int main(int argc, char *argv[])
 
     brutalwait(t - 10000);
 
-    FILE *f = http_get("is.muni.cz", path);
+    FILE *f = https_get("is.muni.cz", path);
     if (f) {
         http_auth_basic(f, user, pass);
 
