@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 
     millitime_t t = (millitime_t) mktime(&lt) * 1000;
 
-    brutalwait(t - 10000);
+    brutalwait(t - 20000);
 
     FILE *f = https_get("is.muni.cz", path);
     if (f) {
