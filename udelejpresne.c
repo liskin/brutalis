@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
         char buffer[4096];
         while (fgets(buffer, 4096, f)) {
             fputs(buffer, df);
-            if (strstr(buffer, "Potvrzení:") || strstr(buffer, "Varování:"))
+            if (strstr(buffer, "potvrzeni") || strstr(buffer, "varovani"))
                 ok = 1;
             //fputs(buffer, stdout);
         }
