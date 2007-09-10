@@ -47,6 +47,17 @@ int main(int argc, char *argv[])
 
     millitime_t t = (millitime_t) mktime(&lt) * 1000;
 
+    /* Priprava debug filu. */
+    char df_name[] = "brutalis-dbg-XXXXXX";
+    int df_fd = mkstemp(df_name);
+    if (df_fd == -1)
+        perror("mkstemp"), abort();
+    FILE *df = fdopen(df_fd, "w");
+    if (!df)
+        perror("fdopen"), abort();
+    fprintf(df, "PATH: %s\n\n", path);
+    printf("\033[1mVystup jde do: %s\033[m\n", df_name);
+
     brutalwait(t - 20000);
 
     FILE *f = https_get("is.muni.cz", path);
@@ -61,6 +72,7 @@ int main(int argc, char *argv[])
 
         char buffer[4096];
         while (fgets(buffer, 4096, f)) {
+            fputs(buffer, df);
             if (strstr(buffer, "Potvrzení:") || strstr(buffer, "Varování:"))
                 ok = 1;
             //fputs(buffer, stdout);
@@ -74,6 +86,7 @@ int main(int argc, char *argv[])
             printf("\033[1;32mOK\033[m\n");
     }
 
+    fclose(df);
     free(pass);
 
     return 0;
