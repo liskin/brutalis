@@ -22,6 +22,10 @@ int main(int argc, char *argv[])
     scanf("%19s", user);
 
     char *pass = strdup(getpass("Zadej heslo: "));
+    if (strcmp(pass, getpass("Znovu heslo: "))) {
+        fputs("Hesla se lisi.\n", stderr);
+        abort();
+    }
 
     char path[512];
     printf("Zadej cestu: ");
