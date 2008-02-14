@@ -71,20 +71,36 @@ int main(int argc, char *argv[])
 
         int ok = 0;
 
+        char cas[512] = "", *cas_p;
+        static const char cas_str[] = "Čas Informačního systému: <B>";
+
         char buffer[4096];
         while (fgets(buffer, 4096, f)) {
             fputs(buffer, df);
+
             if (strstr(buffer, "potvrzeni") || strstr(buffer, "varovani"))
                 ok = 1;
+
+            if ((cas_p = strstr(buffer, cas_str))) {
+                cas_p += strlen(cas_str);
+
+                char *end = strstr(cas_p, "</B>");
+                if (end)
+                    *end = 0;
+
+                strncpy(cas, cas_p, 512);
+                cas[511] = 0;
+            }
+
             //fputs(buffer, stdout);
         }
 
         fclose(f);
 
         if (!ok)
-            printf("\033[1;31mCHYBA\033[m\n");
+            printf("%s: \033[1;31mCHYBA\033[m\n", cas);
         else
-            printf("\033[1;32mOK\033[m\n");
+            printf("%s: \033[1;32mOK\033[m\n", cas);
     }
 
     fclose(df);
