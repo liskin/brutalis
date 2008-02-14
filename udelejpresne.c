@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <time.h>
 #include "net.h"
@@ -17,20 +18,24 @@
 
 int main(int argc, char *argv[])
 {
+    /* UCO */
     char user[20];
     printf("Zadej UCO: ");
     scanf("%19s", user);
 
+    /* Heslo */
     char *pass = strdup(getpass("Zadej heslo: "));
     if (strcmp(pass, getpass("Znovu heslo: "))) {
         fputs("Hesla se lisi.\n", stderr);
         abort();
     }
 
+    /* Cesta */
     char path[512];
     printf("Zadej cestu: ");
     scanf("%511s", path);
 
+    /* Cas */
     char cas[20];
     printf("Zadej cas: ");
     scanf("%19s", cas);
@@ -46,6 +51,15 @@ int main(int argc, char *argv[])
     lt.tm_isdst = -1;
 
     millitime_t t = (millitime_t) mktime(&lt) * 1000;
+
+    /* Pocet pokusu */
+    int pocet_pokusu = 1;
+    printf("Zadej pocet pokusu: ");
+    scanf("%d", &pocet_pokusu);
+
+    pid_t pid = 1;
+    while (pid > 0 && pocet_pokusu-- > 1)
+        pid = fork();
 
     /* Priprava debug filu. */
     char df_name[128];
@@ -105,6 +119,10 @@ int main(int argc, char *argv[])
 
     fclose(df);
     free(pass);
+
+    /* Pockat na deti. */
+    if (pid > 0)
+        while (wait(0) > 0);
 
     return 0;
 }
