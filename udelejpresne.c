@@ -48,7 +48,8 @@ int main(int argc, char *argv[])
     millitime_t t = (millitime_t) mktime(&lt) * 1000;
 
     /* Priprava debug filu. */
-    char df_name[] = "brutalis-dbg-XXXXXX";
+    char df_name[128];
+    snprintf(df_name, 128, "brutalis-dbg-%s-XXXXXX", user);
     int df_fd = mkstemp(df_name);
     if (df_fd == -1)
         perror("mkstemp"), abort();
