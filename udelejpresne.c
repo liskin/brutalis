@@ -36,21 +36,24 @@ int main(int argc, char *argv[])
     scanf("%511s", path);
 
     /* Cas */
-    char cas[20];
+    char cas[50], *cas_end;
     printf("Zadej cas: ");
-    scanf("%19s", cas);
+    scanf("%49s", cas);
+    cas_end = cas + strlen(cas);
 
     struct tm lt;
     time_t now = time(0);
     localtime_r(&now, &lt);
-    if (!strptime(cas, "%T", &lt)) {
+    if (strptime(cas, "%T", &lt) != cas_end && strptime(cas, "%F_%T", &lt) != cas_end) {
         fputs("Zadal si spatne cas ty gumo.\n", stderr);
         abort();
     }
 
     lt.tm_isdst = -1;
 
-    millitime_t t = (millitime_t) mktime(&lt) * 1000;
+    now = mktime(&lt);
+    millitime_t t = (millitime_t) now * 1000;
+    printf("Cekam do %s", ctime(&now));
 
     /* Pocet pokusu */
     int pocet_pokusu = 1;
