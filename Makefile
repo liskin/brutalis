@@ -6,24 +6,23 @@ CXXFLAGS=$(CMNFLAGS)
 LDLIBS=-lcrypto -lssl
 LDFLAGS=-g
 
+SOURCES=$(wildcard *.c)
 OBJECTS=net.o base64.o http.o time.o common.o
-BINS=udelejpresne
+BINS=udelejpresne souteze
 
 
-.PHONY: all clean dep
+.PHONY: all clean
 
 all: $(BINS)
-
-udelejpresne: udelejpresne.o $(OBJECTS)
-
-
-MAKEDEP=-gcc -MM $(wildcard *.c *.cc) > .depend
-dep:
-	$(MAKEDEP)
-.depend:
-	$(MAKEDEP)
-	
--include .depend
-
 clean:
 	$(RM) $(wildcard *.o *.so *.a $(BINS))
+
+udelejpresne: udelejpresne.o $(OBJECTS)
+souteze: souteze.o $(OBJECTS)
+
+-include $(SOURCES:.c=.d)
+%.d: %.c
+	@set -e; rm -f $@; \
+	$(CC) -M $(CFLAGS) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$

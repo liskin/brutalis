@@ -27,17 +27,43 @@ FILE * https_connect(const char *host)
 }
 
 /**
- * \brief Vytvori nove HTTPS spojeni a posle zacatek pozadavku.
+ * \brief Posle zacatek pozadavku.
  */
-void http_get(FILE *f, const char *host, const char *path)
+static void http_req(FILE *f, const char *req, const char *host, const char *path)
 {
-    fprintf(f, "GET %s HTTP/1.0\r\n"
+    fprintf(f, "%s %s HTTP/1.0\r\n"
             "User-Agent: brutalis/3.14\r\n"
             "Host: %s\r\n"
             "Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5\r\n"
             "Accept-Charset: utf-8;q=0.7,*;q=0.7\r\n"
             "Connection: close\r\n",
-            path, host);
+            req, path, host);
+}
+
+/**
+ * \brief Posle zacatek GET pozadavku.
+ */
+void http_get(FILE *f, const char *host, const char *path)
+{
+    http_req(f, "GET", host, path);
+}
+
+/**
+ * \brief Posle zacatek POST pozadavku.
+ */
+void http_post(FILE *f, const char *host, const char *path)
+{
+    http_req(f, "POST", host, path);
+    fprintf(f, "Content-type: application/x-www-form-urlencoded\r\n");
+}
+
+/**
+ * \brief Posle POST data.
+ */
+void http_post_data_fire(FILE *f, const char *data)
+{
+    fprintf(f, "Content-length: %u\r\n" "\r\n" "%s", strlen(data), data);
+    fflush(f);
 }
 
 /**
