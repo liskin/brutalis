@@ -16,6 +16,15 @@
 #include "net.h"
 
 /**
+ * \brief Cookie struktura pro SSL spojeni.
+ */
+struct ssl_conn {
+    int sock;
+    SSL_CTX *ctx;
+    SSL *ssl;
+};
+
+/**
  * \brief Inicializace.
  */
 static void net_init() __attribute__((constructor));
@@ -29,7 +38,7 @@ static void net_init()
  * \brief Resolvuje IP, vraci ulong.
  * \return 0 pri chybe.
  */
-unsigned long resolv(const char *host)
+static unsigned long resolv(const char *host)
 {
     struct hostent *hp;
     unsigned long host_ip = 0;
@@ -47,7 +56,7 @@ unsigned long resolv(const char *host)
  * \brief Pripojuje soket podle zadane adresy a portu, vraci pripojeny soket.
  * \return -1 pri chybe.
  */
-int net_connect(const char *host, unsigned short port)
+static int net_connect(const char *host, unsigned short port)
 {
     unsigned long host_ip = resolv(host);
     if (!host_ip)
@@ -82,10 +91,37 @@ chyba1:
 }
 
 /**
+ * \brief Otevre spojeni na danou adresu a port, vraci C stream.
+ * \return 0 pri chybe.
+ */
+FILE * plain_connect(const char *host, unsigned short port)
+{
+    int sock = net_connect(host, port);
+    if (sock == -1)
+        goto chyba1;
+
+    FILE *f = fdopen(sock, "rb+");
+    if (!f) {
+        perror("fdopen");
+        goto chyba2;
+    }
+
+    return f;
+
+chyba2:
+    if (close(sock) == -1) {
+        perror("close");
+        abort();
+    }
+chyba1:
+    return 0;
+}
+
+/**
  * \brief Cookie funkce pro uzavreni SSL spojeni i soketu.
  * \return Vzdy uspech - 0.
  */
-int ssl_close(struct ssl_conn *conn)
+static int ssl_close(struct ssl_conn *conn)
 {
     int ret;
 
@@ -107,7 +143,7 @@ int ssl_close(struct ssl_conn *conn)
 /**
  * \brief Cookie funkce pro cteni z SSL spojeni.
  */
-ssize_t ssl_read(struct ssl_conn *conn, char *buf, size_t sz)
+static ssize_t ssl_read(struct ssl_conn *conn, char *buf, size_t sz)
 {
     int ret = SSL_read(conn->ssl, buf, sz);
     if (ret <= 0)
@@ -119,7 +155,7 @@ ssize_t ssl_read(struct ssl_conn *conn, char *buf, size_t sz)
 /**
  * \brief Cookie funkce pro zapis do SSL spojeni.
  */
-ssize_t ssl_write(struct ssl_conn *conn, const char *buf, size_t sz)
+static ssize_t ssl_write(struct ssl_conn *conn, const char *buf, size_t sz)
 {
     int ret = SSL_write(conn->ssl, buf, sz);
     if (ret <= 0)

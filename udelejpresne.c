@@ -93,8 +93,9 @@ int main(int argc, char *argv[])
 
         brutalwait(t - 20000);
 
-        FILE *f = https_get("is.muni.cz", path);
+        FILE *f = https_connect("is.muni.cz");
         if (f) {
+            http_get(f, "is.muni.cz", path);
             http_auth_basic(f, user, pass);
 
             brutalwait(t);

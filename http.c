@@ -11,14 +11,26 @@
 #include "base64.h"
 
 /**
+ * \brief Vytvori nove HTTP spojeni.
+ */
+FILE * http_connect(const char *host)
+{
+    return plain_connect(host, 80);
+}
+
+/**
+ * \brief Vytvori nove HTTPS spojeni.
+ */
+FILE * https_connect(const char *host)
+{
+    return ssl_connect(host, 443);
+}
+
+/**
  * \brief Vytvori nove HTTPS spojeni a posle zacatek pozadavku.
  */
-FILE * https_get(const char *host, const char *path)
+void http_get(FILE *f, const char *host, const char *path)
 {
-    FILE *f = ssl_connect(host, 443);
-    if (!f)
-        return 0;
-
     fprintf(f, "GET %s HTTP/1.0\r\n"
             "User-Agent: brutalis/3.14\r\n"
             "Host: %s\r\n"
@@ -26,8 +38,6 @@ FILE * https_get(const char *host, const char *path)
             "Accept-Charset: utf-8;q=0.7,*;q=0.7\r\n"
             "Connection: close\r\n",
             path, host);
-
-    return f;
 }
 
 /**
