@@ -71,20 +71,25 @@ int main(int argc, char *argv[])
     f = http_connect("souteze.is.muni.cz");
     g = http_connect("souteze.is.muni.cz");
     if (f && g) {
-        http_post(f, "souteze.is.muni.cz", "/");
+        /* Prvni pozadavek. */
+        char path[1024];
+        sprintf(path, "/?uco=%s&soutez=%i", user, soutez);
+        http_get(f, "souteze.is.muni.cz", path);
+
+        /* Druhy pozadavek. */
         http_post(g, "souteze.is.muni.cz", "/");
 
+        /* Odeslani prvniho. */
         brutalwait(t);
+        http_fire(f);
 
-        char data[1024];
-        sprintf(data, "uco=%s&soutez=%i", user, soutez);
-        http_post_data_fire(f, data);
-
+        /* Analyza prvniho. */
         const char *data2 = parse_form(f, df);
         fclose(f);
 
         fputs("\n\n\n\n\n\n", df);
 
+        /* Odeslani druheho. */
         http_post_data_fire(g, data2);
 
         char buffer[4096];
