@@ -32,7 +32,7 @@ FILE * https_connect(const char *host)
 static void http_req(FILE *f, const char *req, const char *host, const char *path)
 {
     fprintf(f, "%s %s HTTP/1.0\r\n"
-            "User-Agent: brutalis/3.14\r\n"
+            "User-Agent: Mozilla/5.0 (X11; U; Linux i686; cs-CZ; rv:1.9.0.13) Gecko/2009082121 Iceweasel/3.0.12 (Debian-3.0.12-1)\r\n"
             "Host: %s\r\n"
             "Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5\r\n"
             "Accept-Charset: utf-8;q=0.7,*;q=0.7\r\n"
