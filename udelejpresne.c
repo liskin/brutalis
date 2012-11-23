@@ -24,11 +24,9 @@ int main(int argc, char *argv[])
     scanf("%19s", user);
 
     /* Heslo */
-    char *pass = strdup(getpass("Zadej heslo: "));
-    if (strcmp(pass, getpass("Znovu heslo: "))) {
-        fputs("Hesla se lisi.\n", stderr);
-        abort();
-    }
+    char iscreds[256];
+    printf("Zadej iscreds: ");
+    scanf("%255s", iscreds);
 
     /* Cas */
     char cas[50], *cas_end;
@@ -96,7 +94,7 @@ int main(int argc, char *argv[])
         FILE *f = https_connect("is.muni.cz");
         if (f) {
             http_get(f, "is.muni.cz", path);
-            http_auth_basic(f, user, pass);
+            http_cookie(f, "iscreds", iscreds);
 
             brutalwait(t);
 
@@ -138,7 +136,6 @@ int main(int argc, char *argv[])
 
         fclose(df);
     }
-    free(pass);
 
     /* Pockat na deti. */
     if (pid > 0)

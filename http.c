@@ -91,3 +91,11 @@ void http_auth_basic(FILE *f, const char *user, const char *pass)
 
     free(b64);
 }
+
+/**
+ * \brief Prida Cookie.
+ */
+void http_cookie(FILE *f, const char *name, const char *value)
+{
+    fprintf(f, "Cookie: %s=%s\r\n", name, value);
+}

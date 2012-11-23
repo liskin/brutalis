@@ -17,5 +17,6 @@ void http_post(FILE *f, const char *host, const char *path);
 void http_post_data_fire(FILE *f, const char *data);
 void http_fire(FILE *f);
 void http_auth_basic(FILE *f, const char *user, const char *pass);
+void http_cookie(FILE *f, const char *name, const char *value);
 
 #endif /* HTTP_H */
