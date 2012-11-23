@@ -85,7 +85,6 @@ int main(int argc, char *argv[])
 
         /* Analyza prvniho. */
         const char *data2 = parse_form(f, df);
-        fclose(f);
 
         fputs("\n\n\n\n\n\n", df);
 
@@ -97,6 +96,7 @@ int main(int argc, char *argv[])
             fputs(buffer, df);
         }
 
+        fclose(f);
         fclose(g);
     }
 
